@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Globe</title>
+
+    <style type="text/css">
+            html {height: 100%}
+        body { margin: 0; overflow:hidden; height:100%}
+
+            #viewerDiv {
+                margin : auto auto;
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                /*margin-top: 50vh;
+                transform: translateY(-50%);*/
+            }
+            #menuDiv {position: absolute; top:0px; margin-left: 0px;}
+
+
+        </style>
+        <meta charset="UTF-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5.1/dat.gui.min.js"></script>
+    </head>
+    <body>
+        <div id="viewerDiv"></div>
+        <script src="dist/itowns2.js"> </script>
+        <script type="text/javascript">
+
+               var initCenter = { longitude:2.3465, latitude: 48.88, altitude: 25000000};
+
+               // iTowns namespace defined here
+
+               var viewerDiv = document.getElementById("viewerDiv");
+
+               itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:false, zFactor:12000}) ;
+
+/*
+         itowns.viewer.addImageryLayer({
+                 protocol:   "wmtsc",
+                 id:         "DARK",
+                 zoom : { min:0, max:4 },
+                 customUrl:  "http://a.basemaps.cartocdn.com/dark_all/%TILEMATRIX/%COL/%ROW.png",
+                 options: { mimetype  : "image/png", tileMatrixSet: "PM"}
+         });
+*/
+         itowns.viewer.addImageryLayer({
+             protocol:   "wmtsc",
+             id:         "OPENSM",
+             zoom : { min:0, max:4 },
+             customUrl:  'http://b.tile.openstreetmap.fr/osmfr/%TILEMATRIX/%COL/%ROW.png',
+             options: { mimetype  : "image/png", tileMatrixSet: "PM"},
+             fx :        2.5
+          });
+
+        itowns.viewer.addImageryLayer({
+             protocol:  "wmtsc",
+             id:        "GEOID",
+             zoom : { min:0, max:4 },
+             customUrl: 'geoideRGB/jpg/%TILEMATRIX/geoideRGB_%COL_%ROW.jpg',
+             options: { mimetype  : "image/jpg", tileMatrixSet: 'WGS84G' },
+             opacity : 0.8
+           });
+
+       itowns.viewer.addElevationLayer({
+            protocol:  "wmtsc",
+            id:        "GEOID",
+            zoom : { min:0, max:4 },
+            customUrl: 'geoide/bil/%TILEMATRIX/geoide_%COL_%ROW.bil',
+            noDataValue : -99999,
+            options: {
+                    name: "ELEVATION.ELEVATIONGRIDCOVERAGE",
+                    mimetype: "image/x-bil;bits=32",
+                    tileMatrixSet: "WGS84G"
+                }
+            });
+
+
+        itowns.viewer.update();
+
+               var text = {};
+               var gui = new dat.GUI( { autoPlace: false});
+               gui.domElement.id = 'menuDiv';
+               viewerDiv.appendChild(gui.domElement);
+
+               {
+                    var onchangeZFactor = function(newValue) {
+                            itowns.viewer.setZFactor(newValue);
+                    };
+                    text['ZFactor'] = itowns.viewer.getZFactor();
+                    gui.add(text, 'ZFactor').min(1.0).max(20000.0).onChange(onchangeZFactor);
+                }
+
+                var layers = itowns.viewer.getLayers();
+                for(var i in layers)
+                {
+                    var layer = layers[i];
+
+                    if(layer.options.mimetype != "image/x-bil;bits=32")
+                    {
+                        text[layer.id] = true;
+                        text[layer.id+'_Opacity'] = itowns.viewer.getLayerOpacity(layer.id);
+
+
+                        var fnUp = function(myid) {
+                            return function() {
+                                itowns.viewer.moveLayerUp(myid);
+                            }
+                        }(layer.id);
+                        var fnDown = function(myid) {
+                            return function() {
+                                itowns.viewer.moveLayerDown(myid);
+                            }
+                        }(layer.id);
+
+                        text[layer.id+'_up'] = fnUp;
+                        text[layer.id+'_down'] = fnDown;
+
+                        var onchangeVisibily = function(id)
+                        {
+                            return function(newValue)
+                            {
+                                itowns.viewer.setLayerVisibility(id,newValue);
+                            };
+
+                        }(layer.id);
+
+                        var onchangeOpacity = function(id)
+                        {
+                            return function(newValue) {
+
+                                var opacity = Math.max(0,Math.min(newValue, 1.0));
+                                itowns.viewer.setLayerOpacity(id, opacity);
+
+                            };
+
+                        }(layer.id);
+
+                        gui.add(text, layer.id).onChange( onchangeVisibily).name(layer.id);
+                        gui.add(text, layer.id + '_Opacity').min(0.0).max(1.0).name(' → Opacity').onChange(onchangeOpacity);
+                        gui.add(text, layer.id + '_up');
+                        gui.add(text, layer.id + '_down');
+                    }
+                }
+
+                var removeLayer= function(nameLayer)
+                {
+
+                    if(itowns.viewer.removeImageryLayer(nameLayer))
+                    {
+                        var controllerTodelete = [];
+
+                        for (var i in gui.__controllers) {
+
+                            var controller = gui.__controllers[i];
+
+                            if(controller.property === nameLayer || controller.property === nameLayer + '_Opacity')
+                                controllerTodelete.push(controller);
+                        }
+
+                        for (var i in controllerTodelete)
+                            gui.remove(controllerTodelete[i]);
+                    }
+                }
+
+                var controller;
+                
+                var layerIdCrs = 'OrthoCRS';
+                viewerDiv.addEventListener('globe-loaded',function(){
+                    console.log("Globe Loaded");
+                } ,
+                false);
+
+                viewerDiv.addEventListener('Layer-removed',function(event){
+                    console.log("Layer " + event.layer +  " removed");
+                } ,
+                false);
+
+        </script>
+    </body>
+</html>
