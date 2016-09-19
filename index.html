@@ -64,15 +64,6 @@ and open the template in the editor.
 
                itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:false, zFactor:12000}) ;
 
-/*
-         itowns.viewer.addImageryLayer({
-                 protocol:   "wmtsc",
-                 id:         "DARK",
-                 zoom : { min:0, max:4 },
-                 customUrl:  "http://a.basemaps.cartocdn.com/dark_all/%TILEMATRIX/%COL/%ROW.png",
-                 options: { mimetype  : "image/png", tileMatrixSet: "PM"}
-         });
-*/
          itowns.viewer.addImageryLayer({
              protocol:   "wmtsc",
              id:         "OPENSM",
@@ -86,7 +77,7 @@ and open the template in the editor.
              protocol:  "wmtsc",
              id:        "GEOID",
              zoom : { min:0, max:4 },
-             customUrl: 'geoideRGB/jpg/%TILEMATRIX/geoideRGB_%COL_%ROW.jpg',
+             customUrl: 'localcolors/jpg/%TILEMATRIX/localcolors_%COL_%ROW.jpg',
              options: { mimetype  : "image/jpg", tileMatrixSet: 'WGS84G' },
              opacity : 0.8
            });
@@ -95,7 +86,7 @@ and open the template in the editor.
             protocol:  "wmtsc",
             id:        "GEOID",
             zoom : { min:0, max:4 },
-            customUrl: 'geoide/bil/%TILEMATRIX/geoide_%COL_%ROW.bil',
+            customUrl: 'geoid/bil/%TILEMATRIX/geoid_%COL_%ROW.bil',
             noDataValue : -99999,
             options: {
                     name: "ELEVATION.ELEVATIONGRIDCOVERAGE",
@@ -120,105 +111,19 @@ and open the template in the editor.
                     gui.add(text, 'ZFactor').min(1.0).max(20000.0).onChange(onchangeZFactor);
                 }
 
-				
-                text['Opacity'] = itowns.viewer.getLayerOpacity("GEOID");
-                var onchangeOpacity = function(id)
                 {
-                     return function(newValue) {
+					var onchangeOpacity = function(id) {
+                      return function(newValue) {
 						var opacity = Math.max(0,Math.min(newValue, 1.0));
 						itowns.viewer.setLayerOpacity(id, opacity);
-					};
-				}("GEOID");
-
-				gui.add(text, 'Opacity').min(0.0).max(1.0).name('Opacity').onChange(onchangeOpacity);
-
-                gui.add(text, 'Orbit').onChange(function(newValue) {
-                        itowns.viewer.orbit(newValue);
-                    });
-/*
-                var layers = itowns.viewer.getLayers();
-                for(var i in layers)
-                {
-                    var layer = layers[i];
-
-                    if(layer.options.mimetype != "image/x-bil;bits=32")
-                    {
-                        text[layer.id] = true;
-                        text[layer.id+'_Opacity'] = itowns.viewer.getLayerOpacity(layer.id);
-
-
-                        var fnUp = function(myid) {
-                            return function() {
-                                itowns.viewer.moveLayerUp(myid);
-                            }
-                        }(layer.id);
-                        var fnDown = function(myid) {
-                            return function() {
-                                itowns.viewer.moveLayerDown(myid);
-                            }
-                        }(layer.id);
-
-                        text[layer.id+'_up'] = fnUp;
-                        text[layer.id+'_down'] = fnDown;
-
-                        var onchangeVisibily = function(id)
-                        {
-                            return function(newValue)
-                            {
-                                itowns.viewer.setLayerVisibility(id,newValue);
-                            };
-
-                        }(layer.id);
-
-                        var onchangeOpacity = function(id)
-                        {
-                            return function(newValue) {
-
-                                var opacity = Math.max(0,Math.min(newValue, 1.0));
-                                itowns.viewer.setLayerOpacity(id, opacity);
-
-                            };
-
-                        }(layer.id);
-
-                        gui.add(text, layer.id).onChange( onchangeVisibily).name(layer.id);
-                        gui.add(text, layer.id + '_Opacity').min(0.0).max(1.0).name(' → Opacity').onChange(onchangeOpacity);
-                        gui.add(text, layer.id + '_up');
-                        gui.add(text, layer.id + '_down');
-                    }
-                }
-
-                var removeLayer= function(nameLayer)
-                {
-
-                    if(itowns.viewer.removeImageryLayer(nameLayer))
-                    {
-                        var controllerTodelete = [];
-
-                        for (var i in gui.__controllers) {
-
-                            var controller = gui.__controllers[i];
-
-                            if(controller.property === nameLayer || controller.property === nameLayer + '_Opacity')
-                                controllerTodelete.push(controller);
-                        }
-
-                        for (var i in controllerTodelete)
-                            gui.remove(controllerTodelete[i]);
-                    }
-                }
-
-                var controller;
-*/
+					  }
+					}("GEOID");
+					text['Opacity'] = itowns.viewer.getLayerOpacity("GEOID");
+					gui.add(text, 'Opacity').min(0.0).max(1.0).name('Opacity').onChange(onchangeOpacity);
+				};
                 
-                var layerIdCrs = 'OrthoCRS';
                 viewerDiv.addEventListener('globe-loaded',function(){
                     console.log("Globe Loaded");
-                } ,
-                false);
-
-                viewerDiv.addEventListener('Layer-removed',function(event){
-                    console.log("Layer " + event.layer +  " removed");
                 } ,
                 false);
         </script>
