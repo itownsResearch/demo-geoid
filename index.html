@@ -132,6 +132,9 @@ and open the template in the editor.
 
 				gui.add(text, 'Opacity').min(0.0).max(1.0).name('Opacity').onChange(onchangeOpacity);
 
+                gui.add(text, 'Orbit').onChange(function(newValue) {
+                        itowns.viewer.orbit(newValue);
+                    });
 /*
                 var layers = itowns.viewer.getLayers();
                 for(var i in layers)
