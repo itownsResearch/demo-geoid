@@ -1,6 +1,6 @@
 # iTowns : Demo-geoid
 
-This demo showcases the use of [itowns2](itowns) to show the Earth's [geoid](https://en.wikipedia.org/wiki/Geoid).
+This demo showcases the use of [itowns2](itowns) ([geoid branch](http://github.com/iTowns/itowns2/tree/geoid)) to show the Earth's [geoid](https://en.wikipedia.org/wiki/Geoid).
 
 [![Demo](http://www.itowns-project.org/demo-geoid/demo-geoid.jpg)](http://www.itowns-project.org/demo-geoid/)
 
