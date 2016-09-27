@@ -137,12 +137,14 @@ and open the template in the editor.
 						
 						canvas.toBlob(function(blob) {
 							var element = document.createElement('a');
+							var child = document.body.appendChild(element);
 							element.style.display = 'none';
 							var url = window.URL.createObjectURL(blob);
 							element.setAttribute('href', url);
 							element.setAttribute('download', 'itowns-geoid.png');
 							element.click();
 							window.URL.revokeObjectURL(blob);
+							document.body.removeChild(child);
 						});
 						console.log('screenshot : done');
 							
@@ -155,9 +157,9 @@ and open the template in the editor.
 						gfx.update();
 					};
 					var ss = gui.addFolder('Screenshot');
-                    text.screenshot = {
-						width: 10000,
-						height: 10000,
+					text.screenshot = {
+						width: itowns.viewer.scene.gfxEngine.getRenderer().getSize().width,
+						height: itowns.viewer.scene.gfxEngine.getRenderer().getSize().height,
 						screenshot: screenshot
 					};
 					
