@@ -62,7 +62,7 @@ and open the template in the editor.
 
                var viewerDiv = document.getElementById("viewerDiv");
 
-               itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:false, zFactor:12000, elevationZooms:[4,2]}) ;
+               itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:false, elevationZooms:[4,2]}) ;
 
          itowns.viewer.addImageryLayer({
              protocol:   "wmtsc",
@@ -88,6 +88,7 @@ and open the template in the editor.
             zoom : { min:2, max:4 },
             customUrl: 'geoid/bil/%TILEMATRIX/geoid_%COL_%ROW.bil',
             noDataValue : -99999,
+            zFactor : 12000,
             options: {
                     name: "ELEVATION.ELEVATIONGRIDCOVERAGE",
                     mimetype: "image/x-bil;bits=32",
@@ -171,9 +172,9 @@ and open the template in the editor.
 
                {
                     var onchangeZFactor = function(newValue) {
-                            itowns.viewer.setZFactor(newValue);
+                            itowns.viewer.setZFactor("GEOID",newValue);
                     };
-                    text['ZFactor'] = itowns.viewer.getZFactor();
+                    text['ZFactor'] = itowns.viewer.getZFactor("GEOID");
                     gui.add(text, 'ZFactor').min(1.0).max(20000.0).onChange(onchangeZFactor);
                 }
 
