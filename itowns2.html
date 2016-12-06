@@ -41,7 +41,7 @@ and open the template in the editor.
 
                var viewerDiv = document.getElementById("viewerDiv");
 
-               itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:true, zFactor:1, elevationZooms: [14,11,7,3]}) ;
+               itowns.viewer.createSceneGlobe(initCenter, viewerDiv, {atmosphere:true, elevationZooms: [14,11,7,3]}) ;
                //console.log(itowns.viewer.pickPosition());
 
               itowns.viewer.addImageryLayer({
@@ -411,6 +411,7 @@ and open the template in the editor.
             id:         "IGN_MNT",
             url:        "http://wxs.ign.fr/va5orxd0pgzvq3jxutqfuy0b/geoportail/wmts",
             noDataValue : -99999,
+            zFactor : 1,
             options: {
                     name: "ELEVATION.ELEVATIONGRIDCOVERAGE",
                     mimetype: "image/x-bil;bits=32",
@@ -485,6 +486,7 @@ and open the template in the editor.
             id:         "IGN_MNT_HIGHRES",
             url:        "http://wxs.ign.fr/va5orxd0pgzvq3jxutqfuy0b/geoportail/wmts",
             noDataValue : -99999,
+            zFactor : 1,
             options: {
                     name: "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
                     mimetype: "image/x-bil;bits=32",

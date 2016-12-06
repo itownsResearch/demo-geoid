@@ -97,8 +97,10 @@ and open the template in the editor.
             });
 
 
-        itowns.viewer.update();
-
+			itowns.viewer.update();
+        
+			
+			
                var text = {};
                var gui = new dat.GUI( { autoPlace: false});
                gui.domElement.id = 'menuDiv';
@@ -178,21 +180,54 @@ and open the template in the editor.
                     gui.add(text, 'ZFactor').min(1.0).max(20000.0).onChange(onchangeZFactor);
                 }
 
+                var onchangeOpacity;
                 {
-					var onchangeOpacity = function(id) {
+					text['Opacity'] = itowns.viewer.getLayerOpacity("GEOID");
+					var controller = gui.add(text, 'Opacity').listen().min(0.0).max(1.0);
+					onchangeOpacity = function(ctrl,id) {
                       return function(newValue) {
 						var opacity = Math.max(0,Math.min(newValue, 1.0));
+						text['Opacity'] = opacity; 
 						itowns.viewer.setLayerOpacity(id, opacity);
+						ctrl.updateDisplay();
 					  }
-					}("GEOID");
-					text['Opacity'] = itowns.viewer.getLayerOpacity("GEOID");
-					gui.add(text, 'Opacity').min(0.0).max(1.0).name('Opacity').onChange(onchangeOpacity);
+					}(controller,"GEOID");
+					controller.onChange(onchangeOpacity);
 				};
                 
                 viewerDiv.addEventListener('globe-loaded',function(){
                     console.log("Globe Loaded");
+					gamepadloop();
                 } ,
                 false);
+                
+                window.addEventListener("gamepadconnected", function(e) { console.log("Gamepad connected", e.gamepad); });
+			window.addEventListener("gamepaddisconnected", function(e) { console.log("Gamepad gamepaddisconnected", e.gamepad); });
+			function gamepadloop()
+			{
+				window.requestAnimationFrame(gamepadloop);
+				var gamepads = navigator.getGamepads();
+				var rotspeed = 0.01;
+				var opacityspeed = 0.05;
+				var eps = 0.1;
+				var c=0;
+				for (var i = 0; i < gamepads.length; ++i)
+				{
+					var pad = gamepads[i];
+					if(pad)
+					{
+						if(Math.abs(pad.axes[0])>eps) {++c; itowns.viewer.scene.currentControls().rotateLeft(rotspeed*pad.axes[0]);}
+						if(Math.abs(pad.axes[1])>eps) {++c; itowns.viewer.scene.currentControls().rotateUp(rotspeed*pad.axes[1]);}
+						var axe2 = /*pad.axes[2]+*/pad.buttons[2].value - pad.buttons[0].value;
+						if(axe2 >  eps) {++c; itowns.viewer.scene.currentControls().dollyIn ();}
+						if(axe2 < -eps) {++c; itowns.viewer.scene.currentControls().dollyOut();}
+						var axe3 = pad.axes[3]+pad.buttons[1].value - pad.buttons[3].value;
+						if(Math.abs(axe3)>eps) { onchangeOpacity( text['Opacity'] + opacityspeed*axe3 );}
+					}
+				}
+ 				if(c) itowns.viewer.scene.currentControls().update();
+			}
+			
         </script>
     </body>
 </html>
